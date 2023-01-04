@@ -1,0 +1,8 @@
+from rest_framework.pagination import PageNumberPagination
+
+
+class Page6PageNumberPagination(PageNumberPagination):
+    '''Пагинатор для рецепта на 6 элементов'''
+    page_size = 6
+    page_size_query_param = 'limit'
+    max_page_size = 10000
