@@ -166,8 +166,8 @@ DJOSER = {
     },
     'PERMISSIONS': {
         'user_create': ['rest_framework.permissions.AllowAny'],
-        'user': ['rest_framework.permissions.AllowAny'],  # CurrentUserOrAdmin
-        'user_list': ['rest_framework.permissions.AllowAny'],  # CurrentUserOrAdmin
+        'user': ['rest_framework.permissions.AllowAny'],  # by default CurrentUserOrAdmin
+        'user_list': ['rest_framework.permissions.AllowAny'],  # by default CurrentUserOrAdmin
     },
 }
 

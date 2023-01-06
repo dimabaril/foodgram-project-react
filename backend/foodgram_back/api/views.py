@@ -1,4 +1,4 @@
-from django.shortcuts import render
+# from django.shortcuts import render
 
 from rest_framework import status
 from rest_framework import viewsets
@@ -13,28 +13,29 @@ from rest_framework import filters
 
 from recipes.models import (
     Tag, Ingredient, Recipe, Subscription,
-    Favorite, ShoppingCart, Recipe_Ingredients)
+    Favorite, ShoppingCart, Recipe_Ingredient)
 from users.models import (User, )
 from .serializers import (
     TagSerializer, IngredientSerializer, RecipeSerializer,
     SubscriptionSerializer, ShortRecipeSerializer)
 from .pagination import Page6PageNumberPagination
+from .permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
 from .filters import RecipeFilter
 
 from django.http import HttpResponse
-#from reportlab.pdfbase import pdfmetrics
-#from reportlab.pdfbase.ttfonts import TTFont
-#from reportlab.pdfgen import canvas
 
 
-class CustomUserViewSet(UserViewSet):  # UserViewSet так только админу список даёт
+class CustomUserViewSet(UserViewSet):
+    # UserViewSet так только админу полный список даёт
     pagination_class = Page6PageNumberPagination
+    permission_classes = (AllowAny, )
 
     def get_queryset(self):
         queryset = User.objects.all()
         return queryset
 
-    @action(detail=True, methods=['post', 'delete', ])
+    @action(detail=True, methods=['post', 'delete', ],
+            permission_classes=(IsAuthenticated, ))
     def subscribe(self, request, id):
         user = request.user
         author = get_object_or_404(User, id=id)
@@ -51,7 +52,7 @@ class CustomUserViewSet(UserViewSet):  # UserViewSet так только адм�
                 user=user, author=author)
             serializer = SubscriptionSerializer(subscription, )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        # if request.method == 'DELETE':
+        # if request.method == 'DELETE':  # для читаемости
         subscription = Subscription.objects.filter(user=user, author=author)
         if subscription:
             subscription.delete()
@@ -61,7 +62,8 @@ class CustomUserViewSet(UserViewSet):  # UserViewSet так только адм�
                 "errors": "Ошибка удаления, вы не подписаны"
                 }, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=False, methods=['get', ])
+    @action(detail=False, methods=['get', ],
+            permission_classes=(IsAuthenticated, ))
     def subscriptions(self, request):
         user = request.user
         subscriptions = Subscription.objects.filter(user=user)
@@ -77,6 +79,7 @@ class CustomUserViewSet(UserViewSet):  # UserViewSet так только адм�
 class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+    permission_classes = (IsAdminOrReadOnly, )
 
 
 class IngredientViewSet(viewsets.ModelViewSet):
@@ -84,6 +87,7 @@ class IngredientViewSet(viewsets.ModelViewSet):
     serializer_class = IngredientSerializer
     filter_backends = (filters.SearchFilter,)
     search_fields = ('^name',)
+    permission_classes = (IsAdminOrReadOnly, )
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -91,17 +95,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
     serializer_class = RecipeSerializer
     pagination_class = Page6PageNumberPagination
 
+    permission_classes = (IsOwnerOrReadOnly, )
+
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
 
-    #filter_backends = (
-    #    DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter)
-    #filterset_fields = ('author', )
-    # search_fields = ('name', 'author__username')
-    # ordering_fields = ('name', 'pub_date')  # если не прописать то все поля
-    # ordering = ('id',) # можно прописать сортировку
-
-    @action(detail=True, methods=['post', 'delete', ])
+    @action(detail=True, methods=['post', 'delete', ],
+            permission_classes=(IsAuthenticated, ))
     def favorite(self, request, pk):
         if request.method == 'POST':
             favorite, get_status = Favorite.objects.get_or_create(
@@ -114,7 +114,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return Response({
                 "errors": "Ошибка добавления, рецепт уже в избранном"
                 }, status=status.HTTP_400_BAD_REQUEST)
-        # if request.method == 'DELETE':
+        # if request.method == 'DELETE':  # для читаемости
         favorite = Favorite.objects.filter(recipe_id=pk, user=request.user)
         if favorite:
             favorite.delete()
@@ -124,7 +124,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 "errors": "Ошибка удаления, рецепта нету в избранном"
                 }, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=True, methods=['post', 'delete'])
+    @action(detail=True, methods=['post', 'delete'],
+            permission_classes=(IsAuthenticated, ))
     def shopping_cart(self, request, pk):
         if request.method == 'POST':
             shoppingcart, get_status = ShoppingCart.objects.get_or_create(
@@ -137,7 +138,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return Response({
                 "errors": "Ошибка добавления, рецепт уже в списке покупок"
                 }, status=status.HTTP_400_BAD_REQUEST)
-        # if request.method == 'DELETE':
+        # if request.method == 'DELETE':  # для читаемости
         shoppingcart = ShoppingCart.objects.filter(
             recipe_id=pk, user=request.user)
         if shoppingcart:
@@ -148,14 +149,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 "errors": "Ошибка удаления, рецепта нету в списке покупок"
                 }, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=False, )
+    @action(detail=False,
+            permission_classes=(IsAuthenticated, ))
     def download_shopping_cart(self, request):
         final_dict = {}
-        ingredients = Recipe_Ingredients.objects.filter(
+        ingredients = Recipe_Ingredient.objects.filter(
             recipe__shoppingcarts__user=request.user).values_list(
             'ingredient__name', 'ingredient__measurement_unit',
             'amount')
-        #print(ingredients)
+        # print(ingredients)
         for item in ingredients:
             name = item[0]
             if name not in final_dict:
@@ -175,9 +177,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return response
 
 
-#class Recipe_IngredientsViewSet(viewsets.ModelViewSet):
-#    queryset = Recipe_Ingredients.objects.all()
-#    serializer_class = Recipe_IngredientsSerializer
+#class Recipe_IngredientViewSet(viewsets.ModelViewSet):
+#    queryset = Recipe_Ingredient.objects.all()
+#    serializer_class = Recipe_IngredientSerializer
 #
 #
 #class SubscriptionViewSet(viewsets.ModelViewSet):
