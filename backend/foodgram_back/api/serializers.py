@@ -77,52 +77,89 @@ class RecipeSerializer(serializers.ModelSerializer):
             'is_favorited', 'is_in_shopping_cart',
             'name', 'image', 'text', 'cooking_time', )
 
-    def validate(self, data):
-        ingredients = self.initial_data.get('ingredients')
-        if not ingredients:
-            raise serializers.ValidationError({
-                'ingredients': 'Добавьте ингредиент'})
-        ingredient_list = []
-        for ingredient_item in ingredients:
-            ingredient = get_object_or_404(Ingredient,
-                                           id=ingredient_item['id'])
-            if not ingredient:
-                raise serializers.ValidationError(
-                    'Ингредиент отсутствует в базе')
-            if ingredient in ingredient_list:
-                raise serializers.ValidationError({
-                    'ingredients': 'Ингредиенты не должны повторяться'})
-            ingredient_list.append(ingredient)
-            if not isinstance(ingredient_item['amount'], int):
-                raise serializers.ValidationError({
-                    'ingredients': ('Количство должно быть числовым значением')
-                })
-            if int(ingredient_item['amount']) < 0:
-                raise serializers.ValidationError({
-                    'ingredients': ('Убедитесь, что значение количества '
-                                    'ингредиента больше 0')
-                })
-        data['ingredients'] = ingredients
-        tags = self.initial_data.get('tags')
-        if not tags:
-            raise serializers.ValidationError({
-                'tags': 'Добавьте теги'})
-        for tag_id in tags:
-            if not Tag.objects.filter(id=tag_id).exists():
-                raise serializers.ValidationError({
-                    'tags': 'Тег отсутствует в базе'
-                })
-        data['tags'] = tags
-        return data
+# Хотел сделать с валидеацией, через постман всё работает но через фронт просто не добавляются рецепты, и редактирование работает только если не менять ингредиенты
+#    def validate(self, data):
+#        ingredients = self.initial_data.get('ingredients')
+#        if not ingredients:
+#            raise serializers.ValidationError({
+#                'ingredients': 'Добавьте ингредиент'})
+#        ingredient_list = []
+#        for ingredient_item in ingredients:
+#            ingredient = get_object_or_404(Ingredient,
+#                                           id=ingredient_item['id'])
+#            if not ingredient:
+#                raise serializers.ValidationError(
+#                    'Ингредиент отсутствует в базе')
+#            if ingredient in ingredient_list:
+#                raise serializers.ValidationError({
+#                    'ingredients': 'Ингредиенты не должны повторяться'})
+#            ingredient_list.append(ingredient)
+#            if not isinstance(ingredient_item['amount'], int):
+#                raise serializers.ValidationError({
+#                    'ingredients': ('Количство должно быть числовым значением')
+#                })
+#            if int(ingredient_item['amount']) < 0:
+#                raise serializers.ValidationError({
+#                    'ingredients': ('Убедитесь, что значение количества '
+#                                    'ингредиента больше 0')
+#                })
+#        data['ingredients'] = ingredients
+#        tags = self.initial_data.get('tags')
+#        if not tags:
+#            raise serializers.ValidationError({
+#                'tags': 'Добавьте теги'})
+#        for tag_id in tags:
+#            if not Tag.objects.filter(id=tag_id).exists():
+#                raise serializers.ValidationError({
+#                    'tags': 'Тег отсутствует в базе'
+#                })
+#        data['tags'] = tags
+#        return data
+#
+#    def create(self, validated_data):
+#        # pprint(self.initial_data)
+#        # print()
+#        # pprint(validated_data)
+#        # print()
+#        # без валидации можно достать из self.initial_data вместо validated_data
+#        recipe_ingredients = validated_data.pop('ingredients')
+#        tags = validated_data.pop('tags')
+#        recipe = Recipe.objects.create(
+#            **validated_data, author=self.context.get('request').user)
+#        recipe.tags.set(tags)
+#        for recipe_ingredient in recipe_ingredients:
+#            Recipe_Ingredient.objects.create(
+#                ingredient_id=recipe_ingredient.get('id'),
+#                recipe=recipe,
+#                amount=recipe_ingredient.get('amount'))
+#        return recipe
+#
+#    def update(self, instance, validated_data):
+#        instance.image = validated_data.get('image', instance.image)
+#        instance.name = validated_data.get('name', instance.name)
+#        instance.text = validated_data.get('text', instance.text)
+#        instance.cooking_time = validated_data.get(
+#            'cooking_time', instance.cooking_time
+#        )
+#        instance.tags.clear()
+#        tags = validated_data.get('tags')
+#        instance.tags.set(tags)
+#        recipe_ingredients = validated_data.get('ingredients')
+#        Recipe_Ingredient.objects.filter(recipe=instance).delete()
+#        if recipe_ingredients:
+#            for ingredient in recipe_ingredients:
+#                Recipe_Ingredient.objects.create(
+#                    recipe=instance,
+#                    ingredient_id=ingredient.get('id'),
+#                    amount=ingredient.get('amount'),
+#                )
+#        instance.save()
+#        return instance
 
     def create(self, validated_data):
-#        pprint(self.initial_data)
-#        print()
-#        pprint(validated_data)
-#        print()
-        # без валидации можно достать из self.initial_data вместо validated_data
-        recipe_ingredients = validated_data.pop('ingredients')
-        tags = validated_data.pop('tags')
+        # pprint(self.initial_data)
+        recipe_ingredients = self.initial_data.pop('ingredients')
+        tags = self.initial_data.pop('tags')
         recipe = Recipe.objects.create(
             **validated_data, author=self.context.get('request').user)
         recipe.tags.set(tags)
@@ -141,9 +178,9 @@ class RecipeSerializer(serializers.ModelSerializer):
             'cooking_time', instance.cooking_time
         )
         instance.tags.clear()
-        tags = validated_data.get('tags')
+        tags = self.initial_data.get('tags')
         instance.tags.set(tags)
-        recipe_ingredients = validated_data.get('ingredients')
+        recipe_ingredients = self.initial_data.get('ingredients')
         Recipe_Ingredient.objects.filter(recipe=instance).delete()
         if recipe_ingredients:
             for ingredient in recipe_ingredients:

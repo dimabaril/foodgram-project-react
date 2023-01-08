@@ -168,6 +168,7 @@ DJOSER = {
         'user_create': ['rest_framework.permissions.AllowAny'],
         'user': ['rest_framework.permissions.AllowAny'],  # by default CurrentUserOrAdmin
         'user_list': ['rest_framework.permissions.AllowAny'],  # by default CurrentUserOrAdmin
+        # 'HIDE_USERS': False,  # тада можно гет_кверисет во вьюхе убрать(не сработало)
     },
 }
 
