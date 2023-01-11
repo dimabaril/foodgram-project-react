@@ -3,7 +3,6 @@
 from csv import DictReader
 
 from django.core.management.base import BaseCommand
-# import os
 from recipes.models import Ingredient
 
 
