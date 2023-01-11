@@ -132,6 +132,6 @@ dmypy.json
 .idea
 
 # вот эта зараза не сработала
-/.vscode
+# /.vscode
 
 .vscode/
