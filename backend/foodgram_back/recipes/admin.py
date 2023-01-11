@@ -1,20 +1,18 @@
 from django.contrib import admin
 
-from .models import (
-    Tag, Ingredient, Recipe, Recipe_Ingredient, Subscription, Favorite,
-    ShoppingCart, )
+from .models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                     ShoppingCart, Subscription, Tag)
 
 
-class Recipe_IngredientInline(admin.TabularInline):
-    model = Recipe_Ingredient
+class RecipeIngredientInline(admin.TabularInline):
+    model = RecipeIngredient
     extra = 0
 
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    inlines = [Recipe_IngredientInline]
+    inlines = [RecipeIngredientInline]
     list_display = ('id', 'name', 'author', 'favorites_count', )
-    # фильтр выглядит странно лучше поиск
     list_filter = ('name', 'author__username', 'tags__name', )
     search_fields = ('name', 'author__username', 'tags__name', )
 

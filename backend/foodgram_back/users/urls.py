@@ -1,13 +1,9 @@
-from rest_framework.routers import DefaultRouter
+from api.views import CustomUserViewSet
 from django.urls import include, path
-# from rest_framework.authtoken import views
-# from djoser.views import UserViewSet
-from api.views import (CustomUserViewSet, )  # SubscriptionViewSet, )
+from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
-# router.register('users', UserViewSet, basename='users')
-# router.register('users/subscriptions', SubscriptionViewSet, basename='users/subscriptions')
-# если во вьюхе геткверисет то надо бэйсенейм явно прописывать
+
 router.register('users', CustomUserViewSet, basename='users')
 
 
