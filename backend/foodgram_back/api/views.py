@@ -2,21 +2,21 @@ from django.db.models import Sum
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
-from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
-                            ShoppingCart, Subscription, Tag)
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import SAFE_METHODS, AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from users.models import User
 
+from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                            ShoppingCart, Subscription, Tag)
+from users.models import User
 from .filters import RecipeFilter
 from .pagination import Page6PageNumberPagination
 from .permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
 from .serializers import (IngredientSerializer, RecipeSerializer,
-                          ShortRecipeSerializer, SubscriptionSerializer,
-                          TagSerializer)
+                          RecipeWriteSerializer, ShortRecipeSerializer,
+                          SubscriptionSerializer, TagSerializer)
 
 
 class CustomUserViewSet(UserViewSet):
@@ -84,11 +84,16 @@ class IngredientViewSet(viewsets.ModelViewSet):
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
-    serializer_class = RecipeSerializer
+    # serializer_class = RecipeSerializer
     pagination_class = Page6PageNumberPagination
     permission_classes = (IsOwnerOrReadOnly, )
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
+
+    def get_serializer_class(self):
+        if self.request.method in SAFE_METHODS:
+            return RecipeSerializer
+        return RecipeWriteSerializer
 
     def add_delete(self, model, request, pk):
         if request.method == 'POST':

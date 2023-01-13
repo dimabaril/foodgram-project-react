@@ -1,8 +1,8 @@
 '''TO START!: python manage.py importcsv'''
+from django.core.management.base import BaseCommand
 
 from csv import DictReader
 
-from django.core.management.base import BaseCommand
 from recipes.models import Ingredient
 
 
@@ -15,7 +15,6 @@ class Command(BaseCommand):
     )
 
     def handle(self, *args, **option):
-        """Filler."""
         print("Loading DB data")
         # print("pwd=" + os.getcwd())
         for row in DictReader(open('../../data/ingredients.csv')):

@@ -1,4 +1,5 @@
 from django.db import models
+
 from users.models import User
 
 MODELS_STR_MAX_LENGTH = 10
