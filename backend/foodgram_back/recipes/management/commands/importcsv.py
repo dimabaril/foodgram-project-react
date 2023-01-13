@@ -17,7 +17,7 @@ class Command(BaseCommand):
     def handle(self, *args, **option):
         print("Loading DB data")
         # print("pwd=" + os.getcwd())
-        for row in DictReader(open('../../data/ingredients.csv')):
+        for row in DictReader(open('ingredients.csv')):
             ingredient = Ingredient.objects.get_or_create(
                 name=row['name'],
                 measurement_unit=row['measurement_unit']

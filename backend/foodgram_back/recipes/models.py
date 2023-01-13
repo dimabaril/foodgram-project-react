@@ -36,11 +36,11 @@ class Ingredient(models.Model):
     """DB model for Ingredients."""
     name = models.CharField(
         verbose_name='Название',
-        max_length=50,
+        max_length=100,
     )
     measurement_unit = models.CharField(
         verbose_name='Единицы измерения',
-        max_length=10,
+        max_length=25,
     )
 
     class Meta:
