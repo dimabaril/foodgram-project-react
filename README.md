@@ -34,7 +34,7 @@ sudo apt install docker-compose
 ```
 git clone git@github.com:dimabaril/foodgram-project-react.git
 ```
-Перейдите в каталог infra. 
+Перейдите в каталог infra.   
 Cоздайте .env файл и наполните его:
 ```
 cd infra
