@@ -12,6 +12,7 @@ python3 -m venv venv
 source venv/bin/activate
 pip3 install -r requarements.txt
 cd foodgram_back
+python3 manage.py collectstatic
 python3 manage.py migrate
 python3 manage.py createsuperuser
 python3 manage.py importcsv

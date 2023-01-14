@@ -131,7 +131,7 @@ dmypy.json
 # .idea
 .idea
 
-# вот эта зараза не сработала
-# /.vscode
 
 .vscode/
+/backend/foodgram_back/static
+/backend/foodgram_back/media
