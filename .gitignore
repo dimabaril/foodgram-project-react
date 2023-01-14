@@ -133,5 +133,5 @@ dmypy.json
 
 
 .vscode/
-/backend/foodgram_back/static
-/backend/foodgram_back/media
+backend/foodgram_back/static/
+backend/foodgram_back/media/
