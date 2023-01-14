@@ -1,7 +1,7 @@
 # Foodgram
-Доступен по адресу: http://51.250.2.201/
-Админ панель: http://51.250.2.201/admin/
-Спицификация API: http://51.250.2.201/api/docs/
+- Доступен по адресу: http://51.250.2.201/
+- Админ панель: http://51.250.2.201/admin/
+- Спицификация API: http://51.250.2.201/api/docs/
 
 ## Технологии
 - Python
@@ -34,7 +34,7 @@ sudo apt install docker-compose
 ```
 git clone git@github.com:dimabaril/foodgram-project-react.git
 ```
-Перейдите в каталог infra
+Перейдите в каталог infra /n
 Cоздайте .env файл и наполните его:
 ```
 cd infra
