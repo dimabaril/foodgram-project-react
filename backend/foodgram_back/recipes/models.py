@@ -130,6 +130,7 @@ class RecipeIngredient(models.Model):
 
 
 class Subscription(models.Model):
+    """User subscripted on author."""
     user = models.ForeignKey(
         to=User,
         on_delete=models.CASCADE,
@@ -150,6 +151,7 @@ class Subscription(models.Model):
 
 
 class Favorite(models.Model):
+    """Recipe in user favorite list."""
     user = models.ForeignKey(
         to=User,
         on_delete=models.CASCADE,
@@ -169,6 +171,7 @@ class Favorite(models.Model):
 
 
 class ShoppingCart(models.Model):
+    """Recipe in user shoping cart."""
     user = models.ForeignKey(
         to=User,
         on_delete=models.CASCADE,
